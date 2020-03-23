@@ -1,0 +1,25 @@
+---
+title: "Dire"
+author: "me"
+date: "3/21/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(xts)
+library(PerformanceAnalytics)
+library(plyr)
+library(quantmod)
+```
+```{r}
+str(X_DJI)
+X_DJI$Date
+return_dji = X_DJI[,2:4]
+
+```
+
+
