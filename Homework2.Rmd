@@ -1,0 +1,247 @@
+---
+title: "Untitled"
+author: "me"
+date: "4/12/2020"
+output: html_document
+---
+```{r}
+library(tidyverse)
+library(xts)
+library(PerformanceAnalytics)
+library(plyr)
+library(quantmod)
+library(fPortfolio)
+```
+
+
+```{r}
+tickers <- c("AMZN", "MSFT","AAPL")
+```
+
+```{r}
+portfolioPrices <- NULL
+for(ticker in tickers) {
+  portfolioPrices <- cbind(portfolioPrices,
+                           getSymbols(ticker, src = "yahoo", from='2016-01-03', periodicity = 'daily', auto.assign=FALSE)[,4])
+}  
+```
+
+```{r}
+portfolioPrices <- portfolioPrices[apply(portfolioPrices,1,function(x) all(!is.na(x))),]
+```
+
+```{r}
+colnames(portfolioPrices) <- tickers
+```
+
+```{r}
+portfolioReturns <- na.omit(ROC(portfolioPrices, type="discrete"))
+portfolioReturns <- as.timeSeries(portfolioReturns)
+```
+
+```{r}
+colnames(portfolioReturns) <- tickers
+portfolioReturns <- as.timeSeries(portfolioReturns)
+```
+
+```{r}
+effFrontier <- portfolioFrontier(portfolioReturns, constraints = "Longonly")
+
+plot(effFrontier, 1)
+plot(effFrontier,c(1,2,3,4))
+```
+
+```{r}
+frontierweights <- getWeights(effFrontier) # get allocations for each instrument
+colnames(frontierweights) <- tickers
+risk_return <- frontierPoints(effFrontier)  
+write.csv(risk_return, "risk_return.csv")
+```
+
+```{r}
+riskReturnPoints <- frontierPoints(effFrontier)
+annualizedPoints <- data.frame(targetRisk=riskReturnPoints[, "targetRisk"] * sqrt(252),
+                               targetReturn=riskReturnPoints[, "targetReturn"] * 252)
+plot(annualizedPoints)
+```
+
+```{r}
+riskFreeRate <- 1
+plot((annualizedPoints[, "targetReturn"]-riskFreeRate) / annualizedPoints[,"targetRisk"], 
+     xlab="point on efficient frontier", ylab="Sharpe ratio")
+```
+
+```{r}
+barplot(t(frontierweights), main = "Frontier weights", col=cm.colors(ncol(frontierweights)+2), legend=colnames(frontierweights))
+```
+
+```{r}
+mvp <- minvariancePortfolio(portfolioReturns, spec = portfolioSpec(), constraints = "Longonly")
+mvp
+```
+
+```{r}
+tangencyPort <- tangencyPortfolio(portfolioReturns, spec = portfolioSpec(), constraints = "Longonly")
+tangencyPort
+```
+
+```{r}
+mvpweights <- getWeights(mvp)
+tangencyweights <- getWeights(tangencyPort)
+```
+
+```{r}
+portfolioPrices <- NULL
+for(ticker in tickers) {
+  portfolioPrices <- cbind(portfolioPrices,
+                           getSymbols.yahoo(ticker, from='2016-01-03', periodicity = 'weekly', auto.assign=FALSE)[,4])}
+```
+
+```{r}
+portfolioPrices <- portfolioPrices[apply(portfolioPrices,1,function(x) all(!is.na(x))),]
+```
+
+```{r}
+colnames(portfolioPrices) <- tickers
+```
+
+```{r}
+portfolioReturns <- na.omit(ROC(portfolioPrices, type="discrete"))
+portfolioReturns <- as.timeSeries(portfolioReturns)
+```
+
+```{r}
+colnames(portfolioReturns) <- tickers
+portfolioReturns <- as.timeSeries(portfolioReturns)
+```
+
+```{r}
+effFrontier <- portfolioFrontier(portfolioReturns, constraints = "Longonly")
+
+plot(effFrontier, 1)
+plot(effFrontier,c(1,2,3,4))
+```
+
+```{r}
+frontierweights <- getWeights(effFrontier) # get allocations for each instrument
+colnames(frontierweights) <- tickers
+risk_return <- frontierPoints(effFrontier)  
+write.csv(risk_return, "risk_return.csv")  
+```
+
+```{r}
+or_matrix <- cor(portfolioReturns)
+cov_matrix <- cov(portfolioReturns)
+write.csv(cov_matrix, "covmatrix.csv")
+```
+
+```{r}
+riskReturnPoints <- frontierPoints(effFrontier)
+annualizedPoints <- data.frame(targetRisk=riskReturnPoints[, "targetRisk"] * sqrt(252),
+                               targetReturn=riskReturnPoints[, "targetReturn"] * 252)
+plot(annualizedPoints)
+```
+
+```{r}
+riskFreeRate <- 1
+plot((annualizedPoints[, "targetReturn"]-riskFreeRate) / annualizedPoints[,"targetRisk"], 
+     xlab="point on efficient frontier", ylab="Sharpe ratio")
+```
+
+```{r}
+barplot(t(frontierweights), main = "Frontier weights", col=cm.colors(ncol(frontierweights)+2), legend=colnames(frontierweights))
+```
+
+```{r}
+mvp <- minvariancePortfolio(portfolioReturns, spec = portfolioSpec(), constraints = "Longonly")
+mvp
+```
+
+```{r}
+tangencyPort <- tangencyPortfolio(portfolioReturns, spec = portfolioSpec(), constraints = "Longonly")
+tangencyPort
+```
+
+```{r}
+mvpweights <- getWeights(mvp)
+tangencyweights <- getWeights(tangencyPort)
+```
+
+```{r}
+portfolioPrices <- NULL
+for(ticker in tickers) {
+  portfolioPrices <- cbind(portfolioPrices,
+                           getSymbols.yahoo(ticker, from='2016-01-03', periodicity = 'monthly', auto.assign=FALSE)[,4])
+}
+```
+
+```{r}
+portfolioPrices <- portfolioPrices[apply(portfolioPrices,1,function(x) all(!is.na(x))),]
+```
+
+```{r}
+colnames(portfolioPrices) <- tickers
+```
+
+```{r}
+portfolioReturns <- na.omit(ROC(portfolioPrices, type="discrete"))
+portfolioReturns <- as.timeSeries(portfolioReturns)
+```
+
+```{r}
+colnames(portfolioReturns) <- tickers
+portfolioReturns <- as.timeSeries(portfolioReturns)
+```
+
+```{r}
+effFrontier <- portfolioFrontier(portfolioReturns, constraints = "Longonly")
+
+plot(effFrontier, 1)
+plot(effFrontier,c(1,2,3,4))
+```
+
+```{r}
+frontierweights <- getWeights(effFrontier) # get allocations for each instrument
+colnames(frontierweights) <- tickers
+risk_return <- frontierPoints(effFrontier)  
+write.csv(risk_return, "risk_return.csv")
+```
+
+```{r}
+or_matrix <- cor(portfolioReturns)
+cov_matrix <- cov(portfolioReturns)
+write.csv(cov_matrix, "covmatrix.csv")
+```
+
+```{r}
+riskReturnPoints <- frontierPoints(effFrontier)
+annualizedPoints <- data.frame(targetRisk=riskReturnPoints[, "targetRisk"] * sqrt(252),
+                               targetReturn=riskReturnPoints[, "targetReturn"] * 252)
+plot(annualizedPoints)
+```
+
+```{r}
+riskFreeRate <- 1
+plot((annualizedPoints[, "targetReturn"]-riskFreeRate) / annualizedPoints[,"targetRisk"], 
+     xlab="point on efficient frontier", ylab="Sharpe ratio")
+```
+
+```{r}
+barplot(t(frontierweights), main = "Frontier weights", col=cm.colors(ncol(frontierweights)+2), legend=colnames(frontierweights))
+```
+
+```{r}
+mvp <- minvariancePortfolio(portfolioReturns, spec = portfolioSpec(), constraints = "Longonly")
+mvp
+```
+
+```{r}
+tangencyPort <- tangencyPortfolio(portfolioReturns, spec = portfolioSpec(), constraints = "Longonly")
+tangencyPort
+```
+
+```{r}
+mvpweights <- getWeights(mvp)
+tangencyweights <- getWeights(tangencyPort)
+```
+
